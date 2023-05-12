@@ -136,7 +136,7 @@ class MLPSampler:
         """Samples from a trained MLP and displays the results"""
 
         # load the mlp
-        with open('mlp.pkl', 'rb') as f:
+        with open('mlp-new.pkl', 'rb') as f:
             data = pickle.load(f)
 
         self.model = data['model']
