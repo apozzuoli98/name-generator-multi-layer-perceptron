@@ -173,7 +173,7 @@ class MLPSampler:
             context = [0] * block_size # initialize with all ...
             while True:
                 # forward pass the neural net
-                print(type(model))
+                console.log(type(model))
                 logits = model(torch.tensor([context])) # embed the characters
                 probs = F.softmax(logits, dim=1)
                 # sample from the distribution
