@@ -139,7 +139,7 @@ class MLPSampler:
 
         # load the mlp
         with open('mlp-new.pkl', 'rb') as f:
-            data = pickle.loads(f)
+            data = pickle.load(f)
 
 
         self.model = data['model']
