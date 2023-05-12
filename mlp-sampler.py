@@ -102,7 +102,8 @@ class FlattenConsecutive:
 
     def __call__(self, x):
         B, T, C = x.shape
-        x = x.view (B, T//2, C*2)
+        x = x.view (B, T//self.n, C*self.n)
+        st.write(self.n)
         if x.shape[1] == 1:
             x = x.squeeze(1)
 
@@ -175,7 +176,6 @@ class MLPSampler:
                 # forward pass the neural net
                 x = torch.tensor([context])
                 for layer in model.layers:
-                    st.write(layer)
                     x = layer(x)
                 logits = x
                 # logits = model(torch.tensor([context])) # embed the characters
