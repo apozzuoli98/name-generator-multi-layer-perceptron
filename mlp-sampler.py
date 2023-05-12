@@ -143,7 +143,6 @@ class MLPSampler:
 
 
         self.model = data['model']
-        st.write(self.model)
         self.block_size = data['block_size']
         self.itos = data['itos']
 
@@ -168,6 +167,8 @@ class MLPSampler:
         seed = random.randint(1, 210000000)
         torch.manual_seed(seed)
         names = []
+        
+        st.write(model)
 
         for _ in range(num_samples):
             out = []
