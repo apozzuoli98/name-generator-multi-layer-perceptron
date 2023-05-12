@@ -5,7 +5,6 @@ import random
 import dill as pickle
 from dill import dumps, loads
 import streamlit as st
-import multi-layer-perceptron
 
 
 # ----------------------------------------------------------------
