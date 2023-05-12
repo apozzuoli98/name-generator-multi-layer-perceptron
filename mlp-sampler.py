@@ -5,12 +5,7 @@ import random
 import dill as pickle
 from dill import dumps, loads
 import streamlit as st
-import Linear
-import BatchNorm1d
-import Tanh
-import Embedding
-import FlattenConsecutive
-import Sequential
+from mlp-sampler import Sequential
 
 
 # ----------------------------------------------------------------
@@ -180,10 +175,7 @@ class MLPSampler:
             while True:
                 # forward pass the neural net
                 x = torch.tensor([context])
-                for layer in model.layers:
-                    x = layer(x)
-                logits = x
-                # logits = model(torch.tensor([context])) # embed the characters
+                logits = model(torch.tensor([context])) # embed the characters
                 probs = F.softmax(logits, dim=1)
                 # sample from the distribution
                 ix = torch.multinomial(probs, num_samples=1).item()
