@@ -167,12 +167,11 @@ class MLPSampler:
         seed = random.randint(1, 210000000)
         torch.manual_seed(seed)
         names = []
-        
-        st.write(model(torch.tensor([context])))
 
         for _ in range(num_samples):
             out = []
             context = [0] * block_size # initialize with all ...
+            st.write(model(torch.tensor([context])))
             while True:
                 # forward pass the neural net
                 logits = model(torch.tensor([context])) # embed the characters
