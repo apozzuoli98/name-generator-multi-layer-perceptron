@@ -134,12 +134,12 @@ class Sequential:
 # --------------------------------------------------
 
 class MLPSampler:
-    def __init__(self):
+    def __init__(self, data):
         """Samples from a trained MLP and displays the results"""
 
         # load the mlp
-        with open('mlp-new.pkl', 'rb') as f:
-            data = pickle.load(f)
+        # with open('mlp-new.pkl', 'rb') as f:
+        #     data = pickle.load(f)
 
 
         self.model = data['model']
@@ -191,4 +191,6 @@ class MLPSampler:
 
 
 if __name__ == '__main__':
-    m = MLPSampler()
+    with open('mlp-new.pkl', 'rb') as f:
+        data = pickle.load(f)
+    m = MLPSampler(data)
