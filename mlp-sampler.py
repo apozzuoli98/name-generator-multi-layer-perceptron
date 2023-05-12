@@ -5,6 +5,12 @@ import random
 import dill as pickle
 from dill import dumps, loads
 import streamlit as st
+import Linear
+import BatchNorm1d
+import Tanh
+import Embedding
+import FlattenConsecutive
+import Sequential
 
 
 # ----------------------------------------------------------------
@@ -103,7 +109,6 @@ class FlattenConsecutive:
     def __call__(self, x):
         B, T, C = x.shape
         x = x.view (B, T//self.n, C*self.n)
-        st.write(self.n)
         if x.shape[1] == 1:
             x = x.squeeze(1)
 
