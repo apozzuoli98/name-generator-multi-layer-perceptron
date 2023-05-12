@@ -133,6 +133,188 @@ class Sequential:
 
 # ---------------------------------------------------
 
+class MLP:
+    def __init__(self):
+        # random.seed = (42) # used for debugging
+        # torch.manual_seed(42) # for reproducibility
+
+        save_model = True # Set to true if you want the model saved 
+
+
+        self.words = open('names.txt', 'r').read().splitlines()
+        random.shuffle(self.words)
+
+        self.context = 8 # context length (block size) where n is number of characters used to predict next char
+        
+        # build the vocabulary of characters mapping to integers
+        self.chars = sorted(list(set(''.join(self.words))))
+        self.stoi = {s:i+1 for i,s in enumerate(self.chars)}
+        self.stoi['.'] = 0
+        self.itos = {i:s for s,i in self.stoi.items()}
+        vocab_size = len(self.itos)
+
+        # build training, dev, and test datasets
+        n1 = int(0.8*len(self.words))
+        n2 = int(0.9*len(self.words))
+        self.Xtr, self.Ytr = self.build_dataset(self.words[:n1], self.context) # 80%
+        self.Xdev, self.Ydev = self.build_dataset(self.words[n1:n2], self.context) # 10%
+        self.Xte, self.Yte = self.build_dataset(self.words[n2:], self.context) # 10%
+
+        # initialize parameters
+        self.model = self.init_params(vocab_size)
+
+        # train the mlp
+        self.train(self.model)
+
+        # put layers into eval mode (needed for batchnorm)
+        for layer in self.model.layers:
+            layer.training = False
+        
+        # evaluate the loss
+        self.split_loss('train', self.model)
+        self.split_loss('val', self.model)
+
+        # sample from the model
+        # self.sample(self.model)
+
+        # Save the mlp
+        if save_model:
+            save_data = {
+                'model': self.model,
+                'block_size': self.context,
+                'itos': self.itos
+            }
+            with open('mlp.pkl', 'wb') as f:
+                pickle.dump(save_data, f)
+
+
+    def build_dataset(self, words, block_size):
+        """
+        Build the dataset such that block_size number of characters are used to 
+        predict next character
+
+        :words: all words in list
+        :block_size: number of characters used to predict next char
+
+        :return: X, Y context and target char
+        """
+        X, Y = [], []
+        for w in words:
+            context = [0] * block_size
+            for ch in w + '.':
+                ix = self.stoi[ch]
+                X.append(context)
+                Y.append(ix)
+                context = context[1:] + [ix] # crop and append
+
+        X = torch.tensor(X)
+        Y = torch.tensor(Y)
+        return X, Y
+    
+
+
+    def init_params(self, vocab_size):
+        """
+        Build the model
+        """
+        n_embd = 10
+        n_hidden = 16
+
+        model = Sequential([
+            Embedding(vocab_size, n_embd),
+            FlattenConsecutive(2), Linear(n_embd * 2, n_hidden, bias=False), BatchNorm1d(n_hidden), Tanh(),
+            FlattenConsecutive(2), Linear(n_hidden * 2, n_hidden, bias=False), BatchNorm1d(n_hidden), Tanh(),
+            FlattenConsecutive(2), Linear(n_hidden * 2, n_hidden, bias=False), BatchNorm1d(n_hidden), Tanh(),
+            Linear(n_hidden, vocab_size)
+        ])
+
+        # parameter init
+        with torch.no_grad():
+            model.layers[-1].weight *= 0.1 # make last layer less confident
+
+        return model
+    
+
+    def train(self, model):
+        """
+        Train the model
+        """
+        parameters = model.parameters()
+        for p in parameters:
+            p.requires_grad = True
+
+        max_steps = 200000
+        batch_size = 32
+        lossi = []
+
+        for i in range(max_steps):
+
+            # minibatch construct
+            ix = torch.randint(0, self.Xtr.shape[0], (batch_size,))
+            Xb, Yb = self.Xtr[ix], self.Ytr[ix] # batch X, Y
+
+            # forward pass
+            logits = model(Xb)
+            loss = F.cross_entropy(logits, Yb) # loss function
+
+            # backward pass
+            for p in parameters:
+                p.grad = None
+            loss.backward()
+
+            # update: simple SGD
+            lr = 0.1 if i < 150000 else 0.01 # step learning rate decay
+            for p in parameters:
+                p.data += -lr * p.grad
+
+            # track stats
+            if i % 10000 == 0: # print every once in a while
+                print(f'{i:7d}/{max_steps}: {loss.item():.4f}')
+            lossi.append(loss.log10().item())
+
+        # plt.plot(torch.tensor(lossi).view(-1, 1000).mean(1))
+        # plt.show()
+
+    @torch.no_grad() # this decorator disables gradient tracking inside pytorch
+    def split_loss(self, split, model):
+        """
+        Evaluate the loss
+        """
+        x,y = {
+            'train': (self.Xtr, self.Ytr),
+            'val': (self.Xdev, self.Ydev),
+            'test': (self.Xte, self.Yte)
+        }[split]
+        logits = model(x)
+        loss = F.cross_entropy(logits, y)
+        print(split, loss.item())
+
+    def sample(self, model):
+        """
+        Sample from the model
+        """
+        for _ in range(20):
+
+            out = []
+            context = [0] * self.context # initialize with all ...
+            while True:
+                # forward pass the neural net
+                logits = model(torch.tensor([context])) # embed the characters
+                probs = F.softmax(logits, dim=1)
+                # sample from the distribution
+                ix = torch.multinomial(probs, num_samples=1).item()
+                # shift the context window and track the samples
+                context = context[1:] + [ix]
+                out.append(ix)
+                # if we sample the special '.' token, break
+                if ix == 0:
+                    break
+
+            print(''.join(self.itos[i] for i in out)) # decode and print the generated word
+
+
+# --------------------------------------------------
+
 class MLPSampler:
     def __init__(self):
         """Samples from a trained MLP and displays the results"""
