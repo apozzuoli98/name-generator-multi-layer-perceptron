@@ -102,7 +102,7 @@ class FlattenConsecutive:
 
     def __call__(self, x):
         B, T, C = x.shape
-        x = x.view (B, T//self.n, C*self.n)
+        x = x.view (B, T//2, C*2)
         if x.shape[1] == 1:
             x = x.squeeze(1)
 
