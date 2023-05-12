@@ -5,4 +5,4 @@ This multi-layer perceptron was trained with the code from apozzuoli98/multi-lay
 This web app, deployed through streamlit, generates a user-defined number of fictional names to display. </br>
 
 
-Link to web-app: https://apozzuoli98-name-generator-multi-layer-perce-mlp-sampler-tbin05.streamlit.app/
+
