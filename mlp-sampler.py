@@ -138,8 +138,8 @@ class MLPSampler:
         """Samples from a trained MLP and displays the results"""
 
         # load the mlp
-        # with open('mlp-new.pkl', 'rb') as f:
-        #     data = pickle.load(f)
+        with open('mlp-new.pkl', 'rb') as f:
+            data = dill.loads(f)
 
 
         self.model = data['model']
@@ -191,6 +191,4 @@ class MLPSampler:
 
 
 if __name__ == '__main__':
-    with open('mlp-new.pkl', 'rb') as f:
-        data = pickle.load(f)
-    m = MLPSampler(data)
+    m = MLPSampler()
