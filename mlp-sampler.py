@@ -175,6 +175,7 @@ class MLPSampler:
                 # forward pass the neural net
                 x = torch.tensor([context])
                 for layer in model.layers:
+                    st.write(layer)
                     x = layer(x)
                 logits = x
                 # logits = model(torch.tensor([context])) # embed the characters
