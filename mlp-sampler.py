@@ -134,7 +134,7 @@ class Sequential:
 # --------------------------------------------------
 
 class MLPSampler:
-    def __init__(self, data):
+    def __init__(self):
         """Samples from a trained MLP and displays the results"""
 
         # load the mlp
