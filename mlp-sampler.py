@@ -143,7 +143,7 @@ class MLPSampler:
 
 
         self.model = data['model']
-        print(self.model)
+        st.write(self.model)
         self.block_size = data['block_size']
         self.itos = data['itos']
 
