@@ -171,7 +171,9 @@ class MLPSampler:
         for _ in range(num_samples):
             out = []
             context = [0] * block_size # initialize with all ...
-            st.write(model.layers)
+            for layer in model.layers:
+                st.write(layer(torch.tensor([context])))
+                break
             while True:
                 # forward pass the neural net
                 logits = model(torch.tensor([context])) # embed the characters
