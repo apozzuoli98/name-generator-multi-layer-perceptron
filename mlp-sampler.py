@@ -1,7 +1,9 @@
 import torch
 import torch.nn.functional as F
 import random
-import pickle
+# import pickle
+import dill as pickle
+from dill import dumps, loads
 import streamlit as st
 
 
@@ -138,6 +140,7 @@ class MLPSampler:
         # load the mlp
         with open('mlp-new.pkl', 'rb') as f:
             data = pickle.load(f)
+
 
         self.model = data['model']
         self.block_size = data['block_size']
