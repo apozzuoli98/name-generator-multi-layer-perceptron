@@ -168,7 +168,7 @@ class MLPSampler:
         torch.manual_seed(seed)
         names = []
         
-        st.write(model)
+        st.write(model(torch.tensor([context])))
 
         for _ in range(num_samples):
             out = []
