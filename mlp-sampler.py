@@ -174,7 +174,7 @@ class MLPSampler:
             while True:
                 # forward pass the neural net
                 x = torch.tensor([context])
-                st.write(model)
+                st.write(model(x))
                 logits = model(torch.tensor([context])) # embed the characters
                 probs = F.softmax(logits, dim=1)
                 # sample from the distribution
