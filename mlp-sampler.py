@@ -171,12 +171,13 @@ class MLPSampler:
         for _ in range(num_samples):
             out = []
             context = [0] * block_size # initialize with all ...
-            for layer in model.layers:
-                st.write(layer(torch.tensor([context])))
-                break
             while True:
                 # forward pass the neural net
-                logits = model(torch.tensor([context])) # embed the characters
+                x = torch.tensor([context])
+                for layer in model.layers:
+                    x = layer(x)
+                logits = x
+                # logits = model(torch.tensor([context])) # embed the characters
                 probs = F.softmax(logits, dim=1)
                 # sample from the distribution
                 ix = torch.multinomial(probs, num_samples=1).item()
